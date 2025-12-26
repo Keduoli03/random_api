@@ -42,7 +42,7 @@ export function RandomQuote() {
         <p className="text-white/60 animate-pulse">Loading...</p>
       ) : quote ? (
         <div className="space-y-2">
-          <p className="text-lg font-medium text-white">"{quote.content}"</p>
+          <p className="text-lg font-medium text-white">&quot;{quote.content}&quot;</p>
           {quote.author && (
             <p className="text-sm text-white/60">- {quote.author}</p>
           )}

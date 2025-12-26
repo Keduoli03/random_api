@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db';
-import { quotesTable, imagesTable, statisticsTable } from '@/db/schema';
+import { quotesTable, statisticsTable } from '@/db/schema';
 import { sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';

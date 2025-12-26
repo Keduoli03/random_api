@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { db } from '@/db';
 import { imagesTable, statisticsTable } from '@/db/schema';
-import { inArray, sql } from 'drizzle-orm';
+import { inArray } from 'drizzle-orm';
 import sizeOf from 'image-size';
 
 export async function syncImages() {
@@ -57,12 +57,12 @@ export async function syncImages() {
                       path: apiPath,
                       fullKey: apiPath
                   });
-              }
-          } catch (e) {
-              // Ignore non-images
-          }
-      }
-  }
+                }
+            } catch {
+                // Ignore non-images
+            }
+        }
+    }
 
   // DB Sync
   const dbImages = await db.select().from(imagesTable);

@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       // But maybe it means "The category '其他' itself should be treated as '动画'"?
       // Let's assume strict mapping for a-l, and fallback to '动画'.
       
-      let category = TYPE_MAP[item.type] || '动画';
+      const category = TYPE_MAP[item.type] || '动画';
       
       // If user meant "g maps to 其他, but treat '其他' as '动画'", then 'g' becomes '动画'.
       // But usually "其他" is a valid category. 

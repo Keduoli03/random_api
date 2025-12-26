@@ -14,7 +14,7 @@ export function StatusBadge() {
         } else {
           setStatus('error');
         }
-      } catch (error) {
+      } catch {
         setStatus('error');
       }
     };
