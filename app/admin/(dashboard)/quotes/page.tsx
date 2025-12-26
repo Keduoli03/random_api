@@ -37,6 +37,7 @@ interface Quote {
   id: number;
   content: string;
   author: string | null;
+  source: string | null;
   category: string | null;
   createdAt: string;
 }
@@ -69,7 +70,9 @@ export default function AdminQuotesPage() {
   // Form states
   const [content, setContent] = useState('');
   const [author, setAuthor] = useState('');
+  const [source, setSource] = useState('');
   const [category, setCategory] = useState('');
+  const [jumpPage, setJumpPage] = useState('');
 
   const fetchQuotes = useCallback(async (page = 1) => {
     setLoading(true);
@@ -149,6 +152,7 @@ export default function AdminQuotesPage() {
   const resetForm = () => {
     setContent('');
     setAuthor('');
+    setSource('');
     setCategory('');
     setCurrentQuote(null);
   };
@@ -159,7 +163,7 @@ export default function AdminQuotesPage() {
       const res = await fetch('/api/quotes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, author, category }),
+        body: JSON.stringify({ content, author, source, category }),
       });
 
       if (res.ok) {
@@ -180,6 +184,7 @@ export default function AdminQuotesPage() {
     setCurrentQuote(quote);
     setContent(quote.content);
     setAuthor(quote.author || '');
+    setSource(quote.source || '');
     setCategory(quote.category || '');
     setIsEditOpen(true);
   };
@@ -192,7 +197,7 @@ export default function AdminQuotesPage() {
       const res = await fetch(`/api/quotes/${currentQuote.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, author, category }),
+        body: JSON.stringify({ content, author, source, category }),
       });
 
       if (res.ok) {
@@ -206,6 +211,16 @@ export default function AdminQuotesPage() {
     } catch (error) {
       console.error('Error updating quote:', error);
       toast.error('更新失败');
+    }
+  };
+
+  const handleJumpPage = () => {
+    const page = parseInt(jumpPage);
+    if (!isNaN(page) && page >= 1 && page <= pagination.totalPages) {
+      handlePageChange(page);
+      setJumpPage('');
+    } else {
+      toast.error(`请输入 1 到 ${pagination.totalPages} 之间的页码`);
     }
   };
 
@@ -284,7 +299,7 @@ export default function AdminQuotesPage() {
               <DialogHeader>
                 <DialogTitle>添加新一言</DialogTitle>
                 <DialogDescription>
-                  输入一言的内容、作者和分类。
+                  输入一言的内容、作者、来源和分类。
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleAddSubmit}>
@@ -298,13 +313,21 @@ export default function AdminQuotesPage() {
                       required
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div className="grid gap-2">
                       <Label htmlFor="author">作者</Label>
                       <Input
                         id="author"
                         value={author}
                         onChange={(e) => setAuthor(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="source">来源</Label>
+                      <Input
+                        id="source"
+                        value={source}
+                        onChange={(e) => setSource(e.target.value)}
                       />
                     </div>
                     <div className="grid gap-2">
@@ -331,16 +354,17 @@ export default function AdminQuotesPage() {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[50px]">ID</TableHead>
-              <TableHead>内容</TableHead>
-              <TableHead className="w-[150px]">作者</TableHead>
-              <TableHead className="w-[100px]">分类</TableHead>
-              <TableHead className="w-[100px] text-right">操作</TableHead>
+              <TableHead className="w-[300px] md:w-[400px]">内容</TableHead>
+              <TableHead className="w-[120px]">作者</TableHead>
+              <TableHead className="w-[120px]">来源</TableHead>
+              <TableHead className="w-[80px]">分类</TableHead>
+              <TableHead className="w-[80px] text-right">操作</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                   <div className="flex justify-center items-center gap-2 text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     加载中...
@@ -349,7 +373,7 @@ export default function AdminQuotesPage() {
               </TableRow>
             ) : quotes.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                   暂无数据
                 </TableCell>
               </TableRow>
@@ -357,8 +381,13 @@ export default function AdminQuotesPage() {
               quotes.map((quote) => (
                 <TableRow key={quote.id}>
                   <TableCell>{quote.id}</TableCell>
-                  <TableCell className="font-medium">{quote.content}</TableCell>
+                  <TableCell className="max-w-[300px] md:max-w-[400px]">
+                    <div className="whitespace-pre-wrap break-all">
+                      {quote.content}
+                    </div>
+                  </TableCell>
                   <TableCell>{quote.author || '-'}</TableCell>
+                  <TableCell>{quote.source || '-'}</TableCell>
                   <TableCell>{quote.category || '-'}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -392,11 +421,33 @@ export default function AdminQuotesPage() {
 
       {/* Pagination Controls */}
       {!loading && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="flex-1 text-sm text-muted-foreground">
-            共 {pagination.total} 条数据，当前第 {pagination.page} / {pagination.totalPages} 页
+        <div className="flex items-center justify-between py-4">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>共 {pagination.total} 条</span>
+            <span>第 {pagination.page} / {pagination.totalPages} 页</span>
           </div>
-          <div className="space-x-2">
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 mr-4">
+              <span className="text-sm text-muted-foreground">跳转至</span>
+              <Input
+                value={jumpPage}
+                onChange={(e) => setJumpPage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleJumpPage();
+                  }
+                }}
+                className="h-8 w-16 text-center"
+                placeholder={pagination.page.toString()}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleJumpPage}
+              >
+                Go
+              </Button>
+            </div>
             <Button
               variant="outline"
               size="sm"
@@ -425,7 +476,7 @@ export default function AdminQuotesPage() {
           <DialogHeader>
             <DialogTitle>编辑一言</DialogTitle>
             <DialogDescription>
-              修改一言的内容、作者和分类。
+              修改一言的内容、作者、来源和分类。
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleEditSubmit}>
@@ -439,13 +490,21 @@ export default function AdminQuotesPage() {
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="edit-author">作者</Label>
                   <Input
                     id="edit-author"
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-source">来源</Label>
+                  <Input
+                    id="edit-source"
+                    value={source}
+                    onChange={(e) => setSource(e.target.value)}
                   />
                 </div>
                 <div className="grid gap-2">
