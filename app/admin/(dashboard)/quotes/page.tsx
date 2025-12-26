@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -71,7 +71,7 @@ export default function AdminQuotesPage() {
   const [author, setAuthor] = useState('');
   const [category, setCategory] = useState('');
 
-  const fetchQuotes = async (page = 1) => {
+  const fetchQuotes = useCallback(async (page = 1) => {
     setLoading(true);
     try {
       const res = await fetch(`/api/quotes?page=${page}&limit=${pagination.limit}`);
@@ -92,11 +92,11 @@ export default function AdminQuotesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.limit]);
 
   useEffect(() => {
     fetchQuotes(1);
-  }, []);
+  }, [fetchQuotes]);
 
   const handleImport = async () => {
     if (!importJson.trim()) {
@@ -110,7 +110,7 @@ export default function AdminQuotesPage() {
       let data;
       try {
         data = JSON.parse(importJson);
-      } catch (e) {
+      } catch {
         toast.error('JSON 格式错误');
         setIsImporting(false);
         return;
