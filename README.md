@@ -1,67 +1,89 @@
-# Next.js Turso Starter
+# Random API System (Next.js + Turso)
 
-This repository is a starter template for building a Next.js application with Turso and Drizzle ORM.
+这是一个基于 Next.js 15 和 Turso (libSQL) 构建的轻量级随机 API 系统。提供随机一言（Quotes）和随机图片（Images）接口，并包含一个后台管理系统，提供一些基本的管理功能。
 
-<img width="1200" alt="Next.js Starter" src="https://github.com/user-attachments/assets/b78fd54e-574b-43b9-8f8f-943d14722e64" />
+## ✨ 主要功能
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?demo-description=Simple%20Next.js%20starter%20for%20using%20SQLite%20over%20HTTP%20with%20Turso.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F2bMt29jx0XHekOO2lYlj6R%2Fc902d38ad15abf0c6d52f05bf60d54c5%2Fzi0I1GXrZoKub1NCL6i3VKe8a2UE5HMITQn1WCyquvoSZxwk&demo-title=Next.js%20Turso%20Starter&demo-url=https%3A%2F%2Fnextjs-turso-starter.vercel.app&from=templates&products=%255B%257B%2522type%2522%253A%2522integration%2522%252C%2522protocol%2522%253A%2522storage%2522%252C%2522productSlug%2522%253A%2522database%2522%252C%2522integrationSlug%2522%253A%2522tursocloud%2522%257D%255D&project-name=Next.js%20Turso%20Starter&repository-name=turso-starter&repository-url=https%3A%2F%2Fgithub.com%2Ftursodatabase%2Fnextjs-turso-starter&skippable-integrations=1)
+### 🚀 公共 API
+*   **随机一言**: 获取一条随机的语录/名言。支持按分类、长度筛选。
+*   **随机图片**: 获取一张随机图片。支持按横屏/竖屏筛选。
 
-## Stack
+### 🛡️ 后台管理 (Admin Dashboard)
+*   **安全认证**: 基于 Cookie 的管理员登录验证。
+*   **一言管理**:
+    *   CRUD 操作（增删改查）。
+    *   批量导入 JSON 数据。
+    *   分页浏览与跳转。
+*   **数据统计**: 实时查看 API 调用次数、资源总量统计。
+*   **图片同步**: 自动扫描本地图片目录并同步元数据到数据库。
 
-- Next.js 15
-- App Router
-- Server Actions
-- Drizzle ORM
-- Turso Database
-- Todo CRUD
-- TypeScript
-- Tailwind CSS
+## 🛠️ 技术栈
+*   **框架**: [Next.js 15 (App Router)](https://nextjs.org/)
+*   **语言**: TypeScript
+*   **数据库**: [Turso (libSQL)](https://turso.tech/)
+*   **ORM**: [Drizzle ORM](https://orm.drizzle.team/)
+*   **UI 组件**: [shadcn/ui](https://ui.shadcn.com/) 
+*   **样式**: [Tailwind CSS v4](https://tailwindcss.com/)
 
-## Local Development
+## 🚀 快速开始
 
-1. Clone this repository
-2. Install dependencies:
+### 1. fork本项目到vercel
 
-   ```bash
-   npm install
-   ```
+### 2. 数据库配置
+1. 登录 [Turso](https://turso.tech/) 并创建一个新数据库。
+2. 复制数据库 URL 和 Auth Token。(Vercel可一键链接)
 
-3. Set up your environment variables:
+### 3. 配置环境变量
 
-   ```bash
-   cp .env.example .env
-   ```
+配置用户名和密码
 
-   Fill in your Turso database credentials:
+```env
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=password
+```
 
-   ```
-   TURSO_DATABASE_URL=your_turso_database_url
-   TURSO_AUTH_TOKEN=your_turso_auth_token
-   ```
+### 4. 数据库迁移
 
-4. Set up your database:
+初始化数据库表结构：
 
-   ```bash
-   npm run db:generate
-   npm run db:push
-   ```
+```bash
+npm run db:push
+```
 
-5. Start the development server:
-   ```bash
-   npm run dev
-   ```
+### 5. 启动开发服务器
 
-## Database Management
 
-This project uses Drizzle ORM for database operations. Here are the available commands:
+## 📂 项目结构
 
-- `npm run db:generate` - Generate migration files from schema changes
-- `npm run db:push` - Push schema changes directly to the database (use with caution)
-- `npm run db:migrate` - Run migrations against the database
-- `npm run db:studio` - Open the Drizzle Studio for database management
+```
+├── app/
+│   ├── api/            # API 路由 (quotes, images, health, auth)
+│   ├── admin/          # 后台管理页面
+│   ├── data/           # 本地资源存储 (Images)
+│   └── ...
+├── components/         # UI 组件 (shadcn)
+├── db/                 # 数据库配置 (Schema, Connection)
+├── lib/                # 工具函数 (auth, stats, etc.)
+├── scripts/            # 脚本 (db sync)
+└── public/             # 静态资源
+```
 
-## Need Help?
+## 📝 API 文档
 
-1. Open an issue on GitHub
-2. Submit a Pull Request to improve this starter
-3. [Join us on Discord](https://tur.so/discord)
+### 随机一言
+- **URL**: `/api/quotes/random`
+- **Method**: `GET`
+- **Params**:
+    - `c`: 分类 (e.g., `a`=动画, `b`=漫画, etc.)
+    - `min_length`: 最小长度
+    - `max_length`: 最大长度
+
+### 随机图片
+- **URL**: `/api/images/random`
+- **Method**: `GET`
+- **Params**:
+    - `type`: 图片方向 (`h`=横屏, `v`=竖屏)
+
+## 📜 许可证
+
+MIT License
