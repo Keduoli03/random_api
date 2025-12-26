@@ -8,7 +8,7 @@ export function StatusBadge() {
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        const res = await fetch('/api/dashboard/stats');
+        const res = await fetch('/api/health');
         if (res.ok) {
           setStatus('ok');
         } else {
